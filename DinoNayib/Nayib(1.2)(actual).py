@@ -1,16 +1,19 @@
 import pygame
 import os
 import random
-
 pygame.init()
 
-BASE_DIR = os.path.dirname(__file__)
-ASSETS_DIR = os.path.join(BASE_DIR, "Assets")
+# === CONFIGURACIÓN DE RUTAS ===
+BASE_DIR = os.path.dirname(_file_)        # Carpeta donde está este archivo .py
+ASSETS_DIR = os.path.join(BASE_DIR, "Assets")  # Carpeta con las imágenes
 
+# === CONFIGURACIÓN DE LA PANTALLA ===
 SCREEN_HEIGHT = 700
 SCREEN_WIDTH = 1200
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
+# === CARGA DE IMÁGENES ===
+# Imágenes del personaje
 RUNNING = [
     pygame.image.load(os.path.join(ASSETS_DIR, "Nayib", "NayibRun1.png")),
     pygame.image.load(os.path.join(ASSETS_DIR, "Nayib", "NayibRun2.png"))
@@ -21,6 +24,7 @@ DUCKING = [
     pygame.image.load(os.path.join(ASSETS_DIR, "Nayib", "NayibDuck2.png"))
 ]
 
+# Cactus pequeños y grandes
 SMALL_CACTUS = [
     pygame.image.load(os.path.join(ASSETS_DIR, "Obstaculos", "SmallCactus1.png")),
     pygame.image.load(os.path.join(ASSETS_DIR, "Obstaculos", "SmallCactus2.png")),
@@ -32,30 +36,36 @@ LARGE_CACTUS = [
     pygame.image.load(os.path.join(ASSETS_DIR, "Obstaculos", "LargeCactus3.png"))
 ]
 
+# Pájaro enemigo
 BIRD = [
     pygame.image.load(os.path.join(ASSETS_DIR, "Bird", "Bird1.png")),
     pygame.image.load(os.path.join(ASSETS_DIR, "Bird", "Bird2.png"))
 ]
 
+# Nubes y fondo
 CLOUD = pygame.image.load(os.path.join(ASSETS_DIR, "Otros", "Cloud1.png"))
 BG = pygame.image.load(os.path.join(ASSETS_DIR, "Otros", "Track.png"))
 
 
+# === CLASE PRINCIPAL DEL PERSONAJE ===
 class Dinosaur:
     X_POS = 80
     Y_POS = 310
     Y_POS_DUCK = 340
-    JUMP_VEL = 8.5
+    JUMP_VEL = 8.5  # Velocidad de salto
 
-    def __init__(self):
+    def _init_(self):
+        # Asigna las imágenes del personaje
         self.duck_img = DUCKING
         self.run_img = RUNNING
         self.jump_img = JUMPING
 
+        # Estados del personaje
         self.dino_duck = False
         self.dino_run = True
         self.dino_jump = False
 
+        # Variables de movimiento
         self.step_index = 0
         self.jump_vel = self.JUMP_VEL
         self.image = self.run_img[0]
@@ -64,6 +74,7 @@ class Dinosaur:
         self.dino_rect.y = self.Y_POS
 
     def update(self, userInput):
+        # Dependiendo de la acción del jugador, el dinosaurio hace algo
         if self.dino_duck:
             self.duck()
         if self.dino_run:
@@ -71,9 +82,11 @@ class Dinosaur:
         if self.dino_jump:
             self.jump()
 
+        # Reinicia el ciclo de movimiento
         if self.step_index >= 10:
             self.step_index = 0
 
+        # Controles del teclado
         if userInput[pygame.K_UP] and not self.dino_jump:
             self.dino_duck = False
             self.dino_run = False
@@ -88,6 +101,7 @@ class Dinosaur:
             self.dino_jump = False
 
     def duck(self):
+        # Cuando el dinosaurio se agacha
         self.image = self.duck_img[self.step_index // 5]
         self.dino_rect = self.image.get_rect()
         self.dino_rect.x = self.X_POS
@@ -95,6 +109,7 @@ class Dinosaur:
         self.step_index += 1
 
     def run(self):
+        # Cuando el dinosaurio corre
         self.image = self.run_img[self.step_index // 5]
         self.dino_rect = self.image.get_rect()
         self.dino_rect.x = self.X_POS
@@ -102,6 +117,7 @@ class Dinosaur:
         self.step_index += 1
 
     def jump(self):
+        # Movimiento del salto
         self.image = self.jump_img
         if self.dino_jump:
             self.dino_rect.y -= self.jump_vel * 4
@@ -114,8 +130,9 @@ class Dinosaur:
         SCREEN.blit(self.image, (self.dino_rect.x, self.dino_rect.y))
 
 
+# === CLASE DE LAS NUBES ===
 class Cloud:
-    def __init__(self):
+    def _init_(self):
         self.x = SCREEN_WIDTH + random.randint(800, 1000)
         self.y = random.randint(100, 100)
         self.image = CLOUD
@@ -131,8 +148,9 @@ class Cloud:
         SCREEN.blit(self.image, (self.x, self.y))
 
 
+# === CLASE BASE DE OBSTÁCULOS (CACTUS Y PÁJARO) ===
 class Obstacle:
-    def __init__(self, image, type):
+    def _init_(self, image, type):
         self.image = image
         self.type = type
         self.rect = self.image[self.type].get_rect()
@@ -147,34 +165,37 @@ class Obstacle:
         SCREEN.blit(self.image[self.type], self.rect)
 
 
+# === DIFERENTES TIPOS DE OBSTÁCULOS ===
 class SmallCactus(Obstacle):
-    def __init__(self, image):
+    def _init_(self, image):
         self.type = random.randint(0, 2)
-        super().__init__(image, self.type)
+        super()._init_(image, self.type)
         self.rect.y = 325
 
 
 class LargeCactus(Obstacle):
-    def __init__(self, image):
+    def _init_(self, image):
         self.type = random.randint(0, 2)
-        super().__init__(image, self.type)
+        super()._init_(image, self.type)
         self.rect.y = 300
 
 
 class Bird(Obstacle):
-    def __init__(self, image):
+    def _init_(self, image):
         self.type = 0
-        super().__init__(image, self.type)
+        super()._init_(image, self.type)
         self.rect.y = 250
         self.index = 0
 
     def draw(self, SCREEN):
+        # Hace que las alas se muevan
         if self.index >= 9:
             self.index = 0
         SCREEN.blit(self.image[self.index // 5], self.rect)
         self.index += 1
 
 
+# === FUNCIÓN PRINCIPAL DEL JUEGO ===
 def main():
     global game_speed, x_pos_bg, y_pos_bg, points, obstacles
     run = True
@@ -182,6 +203,7 @@ def main():
     player = Dinosaur()
     cloud = Cloud()
 
+    # Variables del juego
     game_speed = 20
     x_pos_bg = 0
     y_pos_bg = 380
@@ -190,6 +212,7 @@ def main():
     obstacles = []
     death_count = 0
 
+    # Puntuación
     def score():
         global points, game_speed
         points += 1
@@ -200,6 +223,7 @@ def main():
         textRect.center = (1000, 40)
         SCREEN.blit(text, textRect)
 
+    # Fondo en movimiento
     def background():
         global x_pos_bg, y_pos_bg
         image_width = BG.get_width()
@@ -210,6 +234,7 @@ def main():
             x_pos_bg = 0
         x_pos_bg -= game_speed
 
+    # === LOOP PRINCIPAL ===
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -221,6 +246,7 @@ def main():
         player.draw(SCREEN)
         player.update(userInput)
 
+        # Crea obstáculos aleatorios
         if len(obstacles) == 0:
             choice = random.randint(0, 2)
             if choice == 0:
@@ -230,10 +256,12 @@ def main():
             else:
                 obstacles.append(Bird(BIRD))
 
+        # Mueve los obstáculos
         for obstacle in obstacles:
             obstacle.draw(SCREEN)
             obstacle.update()
 
+            # Detecta colisión
             if player.dino_rect.colliderect(obstacle.rect):
                 pygame.time.delay(2000)
                 death_count += 1
@@ -248,6 +276,7 @@ def main():
         pygame.display.update()
 
 
+# === MENÚ PRINCIPAL Y REINICIO ===
 def menu(death_count):
     global points
     run = True
@@ -270,11 +299,14 @@ def menu(death_count):
         SCREEN.blit(RUNNING[0], (SCREEN_WIDTH // 2 - 20, SCREEN_HEIGHT // 2 - 140))
         pygame.display.update()
 
+        # Espera a que se presione una tecla
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
             if event.type == pygame.KEYDOWN:
                 main()
 
+
+# === INICIO DEL JUEGO ===
 menu(death_count=0)
 pygame.quit()
